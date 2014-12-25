@@ -1,0 +1,100 @@
+#!/bin/bash
+
+# Update installed packages.
+#     Update installed brew packages.
+#     Update installed gem packages.
+#     Update installed npm packages.
+#     Update installed emacs packages.
+
+# The MIT License (MIT)
+#
+# Copyright (c) 2014 Shohei KAMIMORI
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+_update_emacs_vendors() {
+   readonly EMACS_VENDOR_DIR="${HOME}/.emacs.d/vendor/"
+
+   if type "emacs" >/dev/null 2>/dev/null; then
+       for package in $(ls -F -l ${EMACS_VENDOR_DIR} | awk '{ print $9 }' | grep /)
+       do
+           cd ${EMACS_VENDOR_DIR}${package}
+           echo "!!!! Update $(pwd)"
+           git checkout master
+           git pull
+       done
+   fi
+}
+
+_update_brew() {
+    if type "brew" >/dev/null 2>/dev/null; then
+        echo '!!!! Update brew'
+        brew update
+        brew upgrade
+        brew cleanup
+    else
+        echo 'Skip update brew'
+    fi
+}
+
+_update_brew_cask() {
+    if type "brew" >/dev/null 2>/dev/null; then
+        # TODO
+        echo '!!!! Update brew cask'
+        for c in $(brew cask list)
+        do
+            ! brew cask info $c | grep -qF "Not installed" || brew cask install $c;
+        done
+        brew cask cleanup
+    fi
+}
+
+_update_gem() {
+    if type "gem" >/dev/null 2>/dev/null; then
+        echo '!!!! Update gem'
+        if type "rubygems-update" >/dev/null 2>/dev/null; then
+            gem install rubygems-update
+        fi
+        update_rubygems
+        gem update
+    else
+        echo 'Skip update gem'
+    fi
+}
+
+_update_npm() {
+    if type "gem" >/dev/null 2>/dev/null; then
+        echo '!!!! Update npm'
+        npm update --system
+        npm update -g
+    else
+        echo 'Skip update npm'
+    fi
+}
+
+_update_all() {
+    echo '!!!! Update all'
+    _update_brew
+    _update_brew_cask
+    _update_gem
+    _update_npm
+    # _update_emacs_vendors
+}
+
+_update_all
