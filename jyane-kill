@@ -31,5 +31,7 @@ _peco-kill() {
 }
 
 if type "peco" >/dev/null 2>/dev/null; then
-    _peco-kill
+  _peco-kill
+else
+  ps aux
 fi

@@ -1,0 +1,3 @@
+find . -name "*.ext" | xargs grep -A 3 -B 3 --color=auto -n "query" /dev/null
+sed -E 's/bef/aft/g' *
+sed -i '' -E 's/bef/aft/g' *
