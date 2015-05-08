@@ -22,7 +22,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-source ${HOME}/bin/util/zsh/util.zsh
+function _jyane_util () {
+  # TODO(jyane): change pbcopy
+  cat ${HOME}/bin/data/commands.txt | peco | awk -F'[:]' '{print $2}' | tr -d '\n' | pbcopy
+  echo 'Command was copied to your clipboard.'
+}
 
-# TODO(jyane): implements all.
-cat ./util/data/commands.txt
+if type "peco" >/dev/null 2>/dev/null; then
+  _jyane_util
+else
+  cat ${HOME}/bin/data/commands.txt
+fi

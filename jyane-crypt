@@ -6,9 +6,9 @@
 #     jyane-crypt command
 #
 # Command:
-#     - crypt
+#     - crypt [file]
 #         crypt file.
-#     - decrypt
+#     - decrypt [file]
 #         decrypt file.
 
 # The MIT License (MIT)
@@ -34,37 +34,75 @@
 # SOFTWARE.
 
 source "$(dirname "${BASH_SOURCE}")"/imosh/imosh || exit 1
+DEFINE_bool stdio false 'Using standard input / output.'
 eval "${IMOSH_INIT}"
 
-# _get_password() {
-  # if [ -r "${HOME}/.jyane-crypt-config" ]; then
-    # echo 'a'
-  # else
-    # echo 'b'
-  # fi
-# }
+_get_password() {
+  if sub::isset JYANE_PASS; then
+    echo "${JYANE_PASS}"
+    return
+  fi
 
-# _decrypt() {
-  # echo 'b'
-# }
+  # notice : using with chmod 600
+  # deprecated method! not recommended!
+  local password_file="${HOME}/.jyane-crypt-config"
+  if [ -r "${password_file}" ]; then
+    cat "${password_file}"
+    return
+  fi
 
-# _encrypt() {
-  # echo 'c'
-# }
+  # recommended method.
+  read input_pass
+  echo "${input_pass}"
+  return
+
+  LOG FATAL 'Password was not genereted.'
+}
+
+_decrypt() {
+  local password=$(_get_password)
+
+  if (( FLAGS_stdio )); then
+    openssl enc -d -aes-256-cbc -base64 -pass "pass:${password}"
+  else
+    local encrypted_file="${2}"
+    local encrypted_file_len=${#encrypted_file}
+    local decrypted_file_len=$(( $encrypted_file_len-7 ))
+    local decrypted_file="${encrypted_file:0:${decrypted_file_len}}"
+    local decrypted_file_ext="${encrypted_file:${decrypted_file_len}:${encrypted_file_len}}"
+
+    if [ "${decrypted_file_ext}" != '.aes256' ]; then
+      LOG FATAL 'Argument extention is not aes256.'
+    fi
+    openssl enc -d -aes-256-cbc -base64 -pass "pass:${password}" \
+      -in "${encrypted_file}" -out "${decrypted_file}"
+  fi
+}
+
+_encrypt() {
+  local password=$(_get_password)
+
+  if (( FLAGS_stdio )); then
+    openssl enc -aes-256-cbc -base64 -pass "pass:${password}"
+  else
+    local file="${2}"
+    openssl enc -aes-256-cbc -base64 -pass "pass:${password}" -in "${file}" -out "${file}.aes256"
+  fi
+}
 
 main() {
   local command="$1"
 
   if type "_${command}" >/dev/null 2>/dev/null; then
-    # TODO(jyane): implement methods.
-    "_${command}"
+    "_${command}" "${@}"
   else
     LOG FATAL "No such command: ${command}"
   fi
 }
 
-if [ "$#" -eq 1 ]; then
-    main "$1"
-else
-    LOG FATAL 'Arguments error.'
-fi
+# TODO(jyane): parse options.
+# if [ "$#" -eq 2 ]; then
+main "$@"
+# else
+    # LOG FATAL 'Arguments error.'
+# fi
