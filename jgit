@@ -1,0 +1,24 @@
+#!/bin/bash
+
+set -ue -o pipefail
+
+_add() {
+  git status -s | awk '{ print $2 }' | peco | xargs git add
+}
+
+_pr() {
+  local n="$2"
+  git fetch upstream pull/$2/head:pr$2
+}
+
+main() {
+  local command="$1"
+
+  if type "_${command}" >/dev/null 2>/dev/null; then
+    "_${command}" "${@}"
+  else
+    echo "No such command: ${command}"
+  fi
+}
+
+main "$@"
