@@ -2,13 +2,45 @@
 
 set -ue -o pipefail
 
+_tohead() {
+  git pull --rebase upstream master
+}
+
+_diff() {
+  git status -s | awk '{ print $2 }' | peco | xargs git diff
+}
+
 _add() {
   git status -s | awk '{ print $2 }' | peco | xargs git add
 }
 
+_checkout() {
+  git status -s | awk '{ print $2 }' | peco | xargs git checkout
+}
+
+_clone() {
+  local target="$2"
+	local uid_url=${target#*//}
+	local uri=${uid_url#*@}
+  local res=${uri%.git}
+
+  git clone "${target}" "${HOME}"/workspace/repos/"${res}"
+}
+
 _pr() {
   local n="$2"
-  git fetch upstream pull/$2/head:pr$2
+  git fetch upstream pull/$n/head:pr$n
+}
+
+_sync() {
+  local cb=$(git rev-parse --abbrev-ref HEAD)
+
+  if [ ${cb} = "master" ]; then
+    git pull upstream master
+    git push origin master
+  else
+    echo 'current branch is not master'
+  fi
 }
 
 main() {
