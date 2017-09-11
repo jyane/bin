@@ -6,6 +6,10 @@ _tohead() {
   git pull --rebase upstream master
 }
 
+_edit() {
+  git status -s | awk '{ print $2 }' | peco | xargs vi
+}
+
 _diff() {
   git status -s | awk '{ print $2 }' | peco | xargs git diff
 }
@@ -27,9 +31,19 @@ _clone() {
   git clone "${target}" "${HOME}"/workspace/repos/"${res}"
 }
 
+_fupdate() {
+  local cb=$(git rev-parse --abbrev-ref HEAD)
+
+  # origin only
+  if [ ${cb} != "master" ]; then
+    git push -f origin ${cb}
+  fi
+}
+
 _pr() {
   local n="$2"
   git fetch upstream pull/$n/head:pr$n
+  git checkout pr$n
 }
 
 _sync() {
