@@ -2,36 +2,77 @@
 
 set -ue -o pipefail
 
-_tohead() {
+if [ ! -n GITHUB_ME ]; then
+  GITHUB_FQDN="jyane"
+fi
+
+if [ ! -n GITHUB_FQDN ]; then
+  GITHUB_FQDN="github.com"
+fi
+
+if [ ! -n GITHUB_URL ]; then
+  GITHUB_URL="https://${GITHUB_FQDN}"
+fi
+
+if [ ! -n GITHUB_API_URL ]; then
+  GITHUB_API_URL="https://api.${GITHUB_FQDN}"
+fi
+
+GITHUB_API_HEADER="Accept: application/vnd.github.v3+json"
+
+BASE_DIR="${HOME}/workspace/repos"
+
+_get_parent() {
+  local target=$1
+  local parent=$(curl -H "${GITHUB_API_HEADER}" "${GITHUB_API_URL}/repos/${target}" | jq '.parent.full_name')
+  echo $parent
+}
+
+command_tohead() {
   git pull --rebase upstream master
 }
 
-_edit() {
-  git status -s | awk '{ print $2 }' | peco | xargs vi
+command_edit() {
+  git status -s | awk '{ print $2 }' | peco | xargs -o nvim
 }
 
-_diff() {
+command_diff() {
   git status -s | awk '{ print $2 }' | peco | xargs git diff
 }
 
-_add() {
+command_add() {
   git status -s | awk '{ print $2 }' | peco | xargs git add
 }
 
-_checkout() {
+command_checkout() {
   git status -s | awk '{ print $2 }' | peco | xargs git checkout
 }
 
-_clone() {
-  local target="$2"
-	local uid_url=${target#*//}
-	local uri=${uid_url#*@}
-  local res=${uri%.git}
-
-  git clone "${target}" "${HOME}"/workspace/repos/"${res}"
+command_rm() {
+  local target=$2
+  rm -rf "${BASE_DIR}/${GITHUB_FQDN}/${target}"
 }
 
-_fupdate() {
+command_clone() {
+  if [[ $2 =~ / ]]; then
+    local target=$2
+  else
+    local target="${GITHUB_ME}/${2}"
+  fi
+
+  local parent=$(_get_parent $target)
+
+  git clone --depth=1 "${GITHUB_URL}/${target}.git" "${BASE_DIR}/${GITHUB_FQDN}/${target}"
+
+  cd "${BASE_DIR}/${GITHUB_FQDN}/${target}"
+  if [ ${parent} != "null" ]; then
+    git remote add upstream "${GITHUB_URL}/${GITHUB_FQDN}/${parent}.git"
+  else
+    git remote add upstream "${GITHUB_URL}/${GITHUB_FQDN}/${target}.git"
+  fi
+}
+
+command_fpush() {
   local cb=$(git rev-parse --abbrev-ref HEAD)
 
   # origin only
@@ -40,13 +81,22 @@ _fupdate() {
   fi
 }
 
-_pr() {
+command_push() {
+  local cb=$(git rev-parse --abbrev-ref HEAD)
+
+  # origin only
+  if [ ${cb} != "master" ]; then
+    git push origin ${cb}
+  fi
+}
+
+command_pr() {
   local n="$2"
   git fetch upstream pull/$n/head:pr$n
   git checkout pr$n
 }
 
-_sync() {
+command_sync() {
   local cb=$(git rev-parse --abbrev-ref HEAD)
 
   if [ ${cb} = "master" ]; then
@@ -58,10 +108,10 @@ _sync() {
 }
 
 main() {
-  local command="$1"
+  local command=$1
 
-  if type "_${command}" >/dev/null 2>/dev/null; then
-    "_${command}" "${@}"
+  if type "command_${command}" >/dev/null 2>/dev/null; then
+    "command_${command}" "${@}"
   else
     echo "No such command: ${command}"
   fi
