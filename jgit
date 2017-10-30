@@ -78,6 +78,8 @@ command_fpush() {
   # origin only
   if [ ${cb} != "master" ]; then
     git push -f origin ${cb}
+  else
+    echo "Cannot force push to master"
   fi
 }
 
@@ -87,6 +89,8 @@ command_push() {
   # origin only
   if [ ${cb} != "master" ]; then
     git push origin ${cb}
+  else
+    echo "Cannot push to master"
   fi
 }
 
