@@ -2,21 +2,13 @@
 
 set -ue -o pipefail
 
-if [ ! -n GITHUB_ME ]; then
-  GITHUB_FQDN="jyane"
-fi
+GITHUB_FQDN="jyane"
 
-if [ ! -n GITHUB_FQDN ]; then
-  GITHUB_FQDN="github.com"
-fi
+GITHUB_FQDN="github.com"
 
-if [ ! -n GITHUB_URL ]; then
-  GITHUB_URL="https://${GITHUB_FQDN}"
-fi
+GITHUB_URL="https://${GITHUB_FQDN}"
 
-if [ ! -n GITHUB_API_URL ]; then
-  GITHUB_API_URL="https://api.${GITHUB_FQDN}"
-fi
+GITHUB_API_URL="https://api.${GITHUB_FQDN}"
 
 GITHUB_API_HEADER="Accept: application/vnd.github.v3+json"
 
@@ -26,6 +18,10 @@ _get_parent() {
   local target=$1
   local parent=$(curl -H "${GITHUB_API_HEADER}" "${GITHUB_API_URL}/repos/${target}" | jq '.parent.full_name')
   echo $parent
+}
+
+command_recommit() {
+  git commit --amend --no-edit
 }
 
 command_tohead() {
