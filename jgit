@@ -2,7 +2,7 @@
 
 set -ue -o pipefail
 
-GITHUB_FQDN="jyane"
+GITHUB_ME="jyane"
 
 GITHUB_FQDN="github.com"
 
