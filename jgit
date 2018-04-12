@@ -16,7 +16,7 @@ BASE_DIR="${HOME}/workspace/repos"
 
 _get_parent() {
   local target=$1
-  local parent=$(curl -H "${GITHUB_API_HEADER}" "${GITHUB_API_URL}/repos/${target}" | jq '.parent.full_name')
+  local parent=$(curl -H "${GITHUB_API_HEADER}" "${GITHUB_API_URL}/repos/${target}" | jq -r '.parent.full_name')
   echo $parent
 }
 
