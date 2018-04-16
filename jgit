@@ -62,10 +62,10 @@ command_clone() {
 
   cd "${BASE_DIR}/${GITHUB_FQDN}/${target}"
   if [ ${parent} != "null" ]; then
-    git remote add upstream "${GITHUB_URL}/${GITHUB_FQDN}/${parent}.git"
+    git remote add upstream "${GITHUB_URL}/${parent}.git"
   else
     echo 'register upstream as origin'
-    git remote add upstream "${GITHUB_URL}/${GITHUB_FQDN}/${target}.git"
+    git remote add upstream "${GITHUB_URL}/${target}.git"
   fi
 }
 
