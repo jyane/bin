@@ -12,7 +12,7 @@ GITHUB_API_URL="https://api.${GITHUB_FQDN}"
 
 GITHUB_API_HEADER="Accept: application/vnd.github.v3+json"
 
-BASE_DIR="${HOME}/workspace/repos"
+BASE_DIR="${HOME}/workspace/src"
 
 _get_parent() {
   local target=$1
