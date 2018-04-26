@@ -20,6 +20,14 @@ _get_parent() {
   echo $parent
 }
 
+command_uncommit() {
+  git reset --mixed HEAD~
+}
+
+command_unstage() {
+  git reset -q HEAD --
+}
+
 command_recommit() {
   git commit --amend --no-edit
 }
