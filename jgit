@@ -52,11 +52,6 @@ command_checkout() {
   git status -s | awk '{ print $2 }' | peco | xargs git checkout
 }
 
-command_rm() {
-  local target=$2
-  rm -rf "${BASE_DIR}/${GITHUB_FQDN}/${target}"
-}
-
 command_clone() {
   if [[ $2 =~ / ]]; then
     local target=$2
