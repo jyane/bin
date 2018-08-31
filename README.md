@@ -1,5 +1,10 @@
 # bin
 
+## jswap
+```
+echo 'a b' | jswap # b a
+```
+
 ## jgit
 Requirements: peco, jq
 
