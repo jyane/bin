@@ -1,5 +1,17 @@
 # bin
 
+## jpb
+
+```
+~/bin] (shohei_kamimori@skamimori 2018-08-31 18:11:32)
+-> echo 'hoge' | pbcopy
+[~/bin] (shohei_kamimori@skamimori 2018-08-31 18:11:44)
+-> jpb sed 's/o//g'
+[~/bin] (shohei_kamimori@skamimori 2018-08-31 18:11:47)
+-> pbpaste
+hge
+```
+
 ## jswap
 ```
 echo 'a b' | jswap # b a
