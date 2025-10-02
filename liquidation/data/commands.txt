@@ -1,4 +1,0 @@
-find files                :find . -name "*.ext" | xargs grep -A 3 -B 3 --color=auto -n "query" /dev/null
-replace strings --dry-run :sed -E 's/bef/aft/g' *
-replace strings           :sed -i '' -E 's/bef/aft/g' *
-remove all .DS_Store      :find ${HOME} -name ".DS_Store" -print -exec rm {} ";"
