@@ -1,0 +1,25 @@
+#!/bin/bash
+
+MAX_RETRIES=5
+DELAY_SECONDS=3
+
+echo "Executing $@ with ${MAX_RETRIES} attempts with ${DELAY_SECONDS} seconds delay."
+
+for i in $(seq 1 $MAX_RETRIES)
+do
+  echo "-----------------------------------------"
+  "$@"
+  exit_code=$?
+  if [ $exit_code -eq 0 ]; then
+    echo "Command finished with exit code 0."
+    exit 0
+  fi
+  echo "Failed with exit code: $exit_code."
+  if [ $i -lt $MAX_RETRIES ]; then
+    echo "Waiting for $DELAY_SECONDS seconds before the next retry..."
+    sleep $DELAY_SECONDS
+  fi
+done
+
+echo "All ${MAX_RETRIES} attempts failed."
+exit 1
